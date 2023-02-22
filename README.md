@@ -33,3 +33,49 @@ O-type instructions (halt, noop):
     bits 24-22: opcode
     bits 21-0:  unused (should all be 0)
 ```
+
+```
+
+-------------------------------------------------------------------------------
+Table 1: Description of Machine Instructions
+-------------------------------------------------------------------------------
+Assembly language 	Opcode in binary		Action
+name for instruction	(bits 24, 23, 22)
+-------------------------------------------------------------------------------
+add (R-type format)	    000 			add contents of regA with
+						contents of regB, store
+						results in regA.
+
+nand (R-type format)	001			nand contents of regA with
+						contents of regB, store
+						results in regA.
+
+movl (I-type format)	010			load regB from memory. Memory
+						address is formed by adding
+						offsetField with the contents of
+						regA. regB = Memory[regA + offset]
+
+movs (I-type format)	011			store regB into memory. Memory
+						address is formed by adding
+						offsetField with the contents of
+						regA. Memory[regA + offset] = regB
+
+je   (I-type format)	100			if the cmp flag is 1 then branch
+						to the address PC+1+offsetField,
+						where PC is the address of the
+						je instruction.
+
+cmp  (R-type format)	101 			set the cmp flag to 1 if the contents
+                                                regA and regB are the same.
+                                                Otherwise cmp flag is 0.
+
+halt (O-type format)	110			increment the PC (as with all
+						instructions), then halt the
+						machine (let the simulator
+						notice that the machine
+						halted).
+
+noop (O-type format)	111			do nothing.
+-------------------------------------------------------------------------------
+```
+
