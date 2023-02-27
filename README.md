@@ -177,8 +177,31 @@ stAddr	dd	start			will contain the address of start (2)
 (address  11):         2 (hex 0x00000002)
 ```
 
+
+## Accounting for Control Hazards
+
+The program illustrates ghsare branch predictor that uses a 16-entry pattern history table containing a 2-bit state machine.
+The initial state will be weakly NOT-TAKEN.
+
+A 16-entry branch target buffer organized as a fully associatve cache with FIFO replacement is also implemented.
+The branch target buffer tag is the PC of the branch instruction, and the data portion is the target address of the branch last time it was calculated. Entries are put into the BTB only when a branch is resolved and TAKEN. 
+If the predictor predicts a branch to be taken but do not find an entry in the BTB, it fetches (speculatively) from PC+1.
+
+### Description for Gshare
+1. When an instruction in ID/EX stage is a branch instruction, it first checks Pattern History Table to predict.
+2. Index of Pattern History Table = the last 4bits of PC of the branch instruction XOR the recent 4bits of Global History Register
+3. When only prediction is either weakly taken or strongly taken, it fetches branch target in IF/ID stage.
+4. When mis-predicted, EX/MEM stage sends noop to ID/EX and IF/ID stages and fecthes PC+1.
+
+### Run
+1. You can just run the program in vscode. The file name is already included in the simulator file.
+
 ### Note!!
-- a.c file takes je as an input. However, it does not accept beq instruction.
+- Because current a.c file does not accept BEQ, I manually edited mc file so that simulators can test BEQ instructions.
 - beq intruction is also I-type instructions that requires field0, field1 and the offset.
 - In the simulator, I used beq instead of cmp and je
 - beq compares the values of field0 and field1 and if they are the same, pc moves to pc+1+offset
+- Compared to the simulator that does not use branch prediction, Gshare takes 6 less cycles to complete the same task.
+
+
+

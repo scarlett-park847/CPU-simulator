@@ -216,7 +216,7 @@ int main(){
     statePrep(&newState);
 
     newfile.open("asm&mc/DataFowardExample.mc",ios::in);  
-    // newfile.open("asm&mc/BranchExample.mc",ios::in);  
+    //newfile.open("asm&mc/BranchExample.mc",ios::in);  
     if (!newfile.is_open()){ 
         cout << "file cannot be opend" << endl;
          exit(EXIT_FAILURE);
