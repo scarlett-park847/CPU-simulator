@@ -1,3 +1,4 @@
+#include "simulator.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -6,78 +7,6 @@
 #include <vector>
 
 using namespace std;
-
-#define NUMMEMORY 65536 /* maximum number of data words in memory */
-#define NUMREGS 8 /* number of machine registers */
-
-#define ADD 0
-#define NAND 1
-#define MOVL 2
-#define MOVS 3
-#define BEQ 4 //JE?
-#define CMP 5
-#define HALT 6
-#define NOOP 7
-
-#define NOOPINSTRUCTION 0x1c00000
-
-typedef struct IFIDStruct {
-    int instr;
-    int pcPlus1;
-} IFIDType;
-
-typedef struct IDEXStruct {
-    int instr;
-    int pcPlus1;
-    int readRegA;
-    int readRegB;
-    int contentRegA;
-    int contentRegB;
-    int offset;
-} IDEXType;
-
-typedef struct EXMEMStruct {
-    int instr;
-    int offset;
-    int cmpFlag;
-    int branchTarget;
-    int contentRegA;
-    int contentRegB;
-    int aluResult;
-    int readRegA;
-    int readRegB;
-} EXMEMType;
-
-typedef struct MEMWBStruct {
-    int instr;
-    int aluResult;
-    int readRegA;
-    int readRegB;
-    int contentRegB;
-    int writeData;
-} MEMWBType;
-
-typedef struct WBENDStruct {
-    int instr;
-    int readRegA;
-    int readRegB;
-    int writeData;
-} WBENDType;
-
-typedef struct stateStruct {
-    int pc;
-    int instrMem[NUMMEMORY];
-    int dataMem[NUMMEMORY];
-    int reg[NUMREGS];
-    int numMemory;
-    IFIDType IFID;
-    IDEXType IDEX;
-    EXMEMType EXMEM;
-    MEMWBType MEMWB;
-    WBENDType WBEND;
-    int cycles; /* number of cycles run so far */
-} stateType;
-
 
 int field0(int instruction){
     return( (instruction>>19) & 0x7);
@@ -287,7 +216,7 @@ int main(){
     statePrep(&newState);
 
     newfile.open("asm&mc/DataFowardExample.mc",ios::in);  
-
+    // newfile.open("asm&mc/BranchExample.mc",ios::in);  
     if (!newfile.is_open()){ 
         cout << "file cannot be opend" << endl;
          exit(EXIT_FAILURE);
@@ -384,14 +313,12 @@ int main(){
         /* --------------------- IF stage --------------------- */ 
         if(state.EXMEM.cmpFlag  != 1){
             state.IFID.instr = state.instrMem[state.pc];
+            newState.pc = state.pc + 1;
         }
         
         cout << "state.IFID.instr: " << state.IFID.instr << endl;
         state.IFID.pcPlus1 = (state.pc) + 1;
 
-        if(state.EXMEM.cmpFlag != 1){
-            newState.pc = state.pc + 1;
-        }
         
         newState.IDEX.instr = state.IFID.instr;
         newState.IDEX.pcPlus1 = state.IFID.pcPlus1;
@@ -408,13 +335,10 @@ int main(){
             exit(0);
 	    }
 
+        newState.cycles = state.cycles+1;
         state = newState;
         state.EXMEM.cmpFlag = 0;
-        state.cycles++; /* this is the last statement before end of the loop.
-                    It marks the end of the cycle and updates the
-                    current state with the values calculated in this
-                    cycle */
-        
+        // state.cycles++; // I cannot understand why it does not work
     }
    
 
